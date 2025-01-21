@@ -30,5 +30,32 @@
       <button type="submit">Subir Foto</button>
     </form>
   </div>
+  <div class="form-container">
+    <h2>Formulario de Captura de Entrada</h2>
+    <form id="captureForm">
+        <div class="form-group">
+            <label for="dateTime">Fecha y Hora de Entrada</label>
+            <input type="text" id="dateTime" disabled>
+        </div>
+
+        <div class="form-group">
+            <button type="button" id="captureButton">Capturar Entrada y Foto</button>
+        </div>
+
+        <div id="countdown"></div>
+
+        <div class="form-group">
+            <video id="video" autoplay></video> <!-- Cámara visible solo cuando sea necesario -->
+        </div>
+
+        <div class="form-group">
+            <img id="preview" alt="Foto capturada">
+        </div>
+
+        <div class="form-group">
+            <button type="button" id="resetButton">Eliminar Foto y Capturar Otra</button>
+        </div>
+    </form>
+</div>
 </body>
 </html>

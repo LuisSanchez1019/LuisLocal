@@ -32,26 +32,86 @@ body {
     color: #333;
 }
 
-.container {
-    margin-top: 20px;
+.form-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
 }
 
-video,
-canvas {
-    display: block;
-    margin: 10px auto;
+h2 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.form-group label {
+    font-weight: bold;
+    color: #555;
+}
+
+.form-group input, .form-group button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
     border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+#preview {
+    width: 100%;
+    max-width: 300px;
+    height: 200px;
+    border: 1px solid #ccc;
+    margin-top: 20px;
+    display: none;
+    object-fit: cover;
+}
+
+#countdown {
+    font-size: 30px;
+    font-weight: bold;
+    color: red;
+    margin-top: 10px;
+}
+
+#resetButton {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 15px;
+    display: none;
+}
+
+#resetButton:hover {
+    background-color: #d32f2f;
 }
 
 button {
-    padding: 10px 20px;
-    margin: 10px;
-    border: none;
-    background-color: #007bff;
+    background-color: #4CAF50;
     color: white;
+    border: none;
     cursor: pointer;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #45a049;
+}
+
+#video {
+    width: 100%;
+    max-width: 320px;
+    height: 240px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    display: none; /* Inicialmente ocultamos la cámara */
 }

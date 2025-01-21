@@ -69,66 +69,80 @@ function initialize() {
 
 // Ejecutar la función de inicialización
 initialize();
-const video = document.getElementById('video');
-const canvas = document.getElementById('canvas');
-const captureBtn = document.getElementById('capture-btn');
-const uploadForm = document.getElementById('upload-form');
-const photoInput = document.getElementById('photo-input');
+const captureButton = document.getElementById('captureButton');
+        const resetButton = document.getElementById('resetButton');
+        const dateTimeDiv = document.getElementById('dateTime');
+        const countdownDiv = document.getElementById('countdown');
+        const video = document.getElementById('video');
+        const preview = document.getElementById('preview');
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
 
-// Cargar modelos de FaceAPI
-Promise.all([
-    faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
-    faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
-    faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
-]).then(startVideo);
+        let countdownTimer;
+        let countdownValue = 5; // Cuenta regresiva en segundos
+        let stream; // Variable para almacenar el flujo de la cámara
 
-// Iniciar la cámara
-function startVideo() {
-    navigator.mediaDevices
-        .getUserMedia({ video: true })
-        .then((stream) => {
-            video.srcObject = stream;
-        })
-        .catch((err) => console.error('Error al acceder a la cámara:', err));
-}
+        // Función para iniciar la cuenta regresiva
+        function startCountdown() {
+            countdownValue = 5;  // Reinicia la cuenta regresiva a 5 segundos
+            countdownDiv.textContent = countdownValue;
+            countdownDiv.style.display = 'block'; // Muestra la cuenta regresiva
+            countdownTimer = setInterval(() => {
+                countdownValue--;
+                countdownDiv.textContent = countdownValue;
+                if (countdownValue <= 0) {
+                    clearInterval(countdownTimer);
+                    capturePhoto(); // Captura la foto cuando termina la cuenta regresiva
+                }
+            }, 1000);
+        }
 
-// Capturar foto y detectar rostro
-captureBtn.addEventListener('click', async () => {
-    const context = canvas.getContext('2d');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        // Función para capturar la foto
+        function capturePhoto() {
+            const currentDate = new Date();
+            dateTimeDiv.value = currentDate.toLocaleString(); // Muestra la fecha y hora en el campo
 
-    const detections = await faceapi.detectAllFaces(
-        canvas,
-        new faceapi.TinyFaceDetectorOptions()
-    );
+            // Tomar la foto
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            preview.src = canvas.toDataURL('image/png'); // Convertir la foto a base64
+            preview.style.display = 'block';  // Mostrar la imagen previsualizada
+            video.style.display = 'none'; // Ocultar la cámara
 
-    if (detections.length > 0) {
-        alert('¡Rostro detectado!');
-        const dataURL = canvas.toDataURL('image/png');
-        photoInput.value = dataURL;
-    } else {
-        alert('No se detectaron rostros.');
-    }
-});
+            // Ocultar la cuenta regresiva y mostrar el botón de reset
+            countdownDiv.style.display = 'none';
+            resetButton.style.display = 'inline-block'; // Muestra el botón de eliminar y capturar otra
+        }
 
-// Subir foto al servidor
-uploadForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const dataURL = photoInput.value;
+        // Función para reiniciar la cámara y eliminar la foto
+        function resetPhoto() {
+            preview.style.display = 'none';
+            resetButton.style.display = 'none';
+            video.style.display = 'block'; // Volver a mostrar la cámara
+            startCountdown(); // Reinicia la cuenta regresiva para tomar otra foto
+        }
 
-    if (!dataURL) {
-        alert('Captura una foto antes de subirla.');
-        return;
-    }
+        // Función para iniciar la cámara al presionar el botón
+        async function startCamera() {
+            // Activar la cámara solo si no está activa
+            if (!stream) {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            }
 
-    fetch('/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ photo: dataURL }),
-    })
-        .then((res) => res.json())
-        .then((data) => alert(data.message))
-        .catch((err) => console.error(err));
-});
+            // Cuando la cámara está lista, inicia la cuenta regresiva
+            video.onplaying = function() {
+                startCountdown(); // Comienza la cuenta regresiva para la foto
+                video.style.display = 'block'; // Asegura que la cámara se muestre
+            };
+        }
+
+        // Evento para capturar la foto al presionar el botón
+        captureButton.addEventListener('click', function() {
+            startCamera(); // Inicia la cámara y la cuenta regresiva
+            captureButton.style.display = 'none'; // Oculta el botón mientras se captura la foto
+        });
+
+        // Evento para eliminar la foto y hacer otra
+        resetButton.addEventListener('click', resetPhoto);
