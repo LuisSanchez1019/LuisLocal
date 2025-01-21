@@ -69,10 +69,9 @@ function initialize() {
 
 // Ejecutar la función de inicialización
 initialize();
-
-const imageUrlInput = document.getElementById('image-url');
-const loadImageBtn = document.getElementById('load-image');
+const video = document.getElementById('video');
 const canvas = document.getElementById('canvas');
+const captureBtn = document.getElementById('capture-btn');
 const statusText = document.getElementById('status');
 
 // Cargar los modelos de face-api.js
@@ -80,50 +79,39 @@ Promise.all([
     faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
     faceapi.nets.faceLandmark68Net.loadFromUri('./models'),
     faceapi.nets.faceRecognitionNet.loadFromUri('./models'),
-]).then(() => {
-    statusText.textContent = 'Modelos cargados correctamente.';
-});
+]).then(startVideo);
 
-// Función para cargar y procesar la imagen desde un enlace
-async function loadAndProcessImage() {
-    const imageUrl = imageUrlInput.value;
-
-    if (!imageUrl) {
-        statusText.textContent = 'Por favor, ingresa una URL de imagen.';
-        return;
-    }
-
-    try {
-        // Crear una imagen desde la URL proporcionada
-        const img = new Image();
-        img.src = imageUrl;
-
-        img.onload = async () => {
-            // Dibujar la imagen en el canvas
-            const context = canvas.getContext('2d');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            context.drawImage(img, 0, 0, img.width, img.height);
-
-            // Detectar rostros en la imagen
-            const detections = await faceapi.detectAllFaces(
-                canvas,
-                new faceapi.TinyFaceDetectorOptions()
-            );
-
-            if (detections.length > 0) {
-                alert('¡Rostro detectado!');
-                statusText.textContent = '¡Rostro detectado!';
-            } else {
-                alert('No se detectaron rostros.');
-                statusText.textContent = 'No se detectaron rostros.';
-            }
-        };
-    } catch (error) {
-        statusText.textContent = 'Error al procesar la imagen.';
-        console.error(error);
-    }
+// Iniciar la cámara
+function startVideo() {
+    navigator.mediaDevices
+        .getUserMedia({ video: true })
+        .then((stream) => {
+            video.srcObject = stream;
+            statusText.textContent = 'Cámara iniciada correctamente.';
+        })
+        .catch((err) => {
+            console.error('Error al acceder a la cámara:', err);
+            statusText.textContent = 'No se pudo iniciar la cámara.';
+        });
 }
 
-// Asociar la función al botón
-loadImageBtn.addEventListener('click', loadAndProcessImage);
+// Capturar foto y detectar rostro
+captureBtn.addEventListener('click', async () => {
+    const context = canvas.getContext('2d');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const detections = await faceapi.detectAllFaces(
+        canvas,
+        new faceapi.TinyFaceDetectorOptions()
+    );
+
+    if (detections.length > 0) {
+        alert('¡Rostro detectado!');
+        statusText.textContent = '¡Rostro detectado!';
+    } else {
+        alert('No se detectaron rostros.');
+        statusText.textContent = 'No se detectaron rostros.';
+    }
+});
