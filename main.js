@@ -72,13 +72,14 @@ initialize();
 const video = document.getElementById('video');
 const canvas = document.getElementById('canvas');
 const captureBtn = document.getElementById('capture-btn');
-const statusText = document.getElementById('status');
+const uploadForm = document.getElementById('upload-form');
+const photoInput = document.getElementById('photo-input');
 
-// Cargar los modelos de face-api.js
+// Cargar modelos de FaceAPI
 Promise.all([
-    faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
-    faceapi.nets.faceLandmark68Net.loadFromUri('./models'),
-    faceapi.nets.faceRecognitionNet.loadFromUri('./models'),
+    faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
+    faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
+    faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
 ]).then(startVideo);
 
 // Iniciar la cámara
@@ -87,12 +88,8 @@ function startVideo() {
         .getUserMedia({ video: true })
         .then((stream) => {
             video.srcObject = stream;
-            statusText.textContent = 'Cámara iniciada correctamente.';
         })
-        .catch((err) => {
-            console.error('Error al acceder a la cámara:', err);
-            statusText.textContent = 'No se pudo iniciar la cámara.';
-        });
+        .catch((err) => console.error('Error al acceder a la cámara:', err));
 }
 
 // Capturar foto y detectar rostro
@@ -109,9 +106,29 @@ captureBtn.addEventListener('click', async () => {
 
     if (detections.length > 0) {
         alert('¡Rostro detectado!');
-        statusText.textContent = '¡Rostro detectado!';
+        const dataURL = canvas.toDataURL('image/png');
+        photoInput.value = dataURL;
     } else {
         alert('No se detectaron rostros.');
-        statusText.textContent = 'No se detectaron rostros.';
     }
+});
+
+// Subir foto al servidor
+uploadForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const dataURL = photoInput.value;
+
+    if (!dataURL) {
+        alert('Captura una foto antes de subirla.');
+        return;
+    }
+
+    fetch('/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ photo: dataURL }),
+    })
+        .then((res) => res.json())
+        .then((data) => alert(data.message))
+        .catch((err) => console.error(err));
 });

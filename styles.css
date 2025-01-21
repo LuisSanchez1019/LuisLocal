@@ -40,23 +40,18 @@ video,
 canvas {
     display: block;
     margin: 10px auto;
-    border: 1px solid #ddd;
+    border: 1px solid #ccc;
 }
 
 button {
     padding: 10px 20px;
     margin: 10px;
-    background-color: #007bff;
-    color: #fff;
     border: none;
+    background-color: #007bff;
+    color: white;
     cursor: pointer;
 }
 
 button:hover {
     background-color: #0056b3;
-}
-
-#status {
-    margin-top: 10px;
-    color: #333;
 }

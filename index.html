@@ -25,7 +25,10 @@
     <video id="video" autoplay muted></video>
     <button id="capture-btn">Capturar Foto</button>
     <canvas id="canvas"></canvas>
-    <p id="status"></p>
+    <form id="upload-form" method="POST" enctype="multipart/form-data">
+      <input type="hidden" id="photo-input" name="photo">
+      <button type="submit">Subir Foto</button>
+    </form>
   </div>
 </body>
 </html>
