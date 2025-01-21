@@ -69,3 +69,61 @@ function initialize() {
 
 // Ejecutar la función de inicialización
 initialize();
+
+const imageUrlInput = document.getElementById('image-url');
+const loadImageBtn = document.getElementById('load-image');
+const canvas = document.getElementById('canvas');
+const statusText = document.getElementById('status');
+
+// Cargar los modelos de face-api.js
+Promise.all([
+    faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
+    faceapi.nets.faceLandmark68Net.loadFromUri('./models'),
+    faceapi.nets.faceRecognitionNet.loadFromUri('./models'),
+]).then(() => {
+    statusText.textContent = 'Modelos cargados correctamente.';
+});
+
+// Función para cargar y procesar la imagen desde un enlace
+async function loadAndProcessImage() {
+    const imageUrl = imageUrlInput.value;
+
+    if (!imageUrl) {
+        statusText.textContent = 'Por favor, ingresa una URL de imagen.';
+        return;
+    }
+
+    try {
+        // Crear una imagen desde la URL proporcionada
+        const img = new Image();
+        img.src = imageUrl;
+
+        img.onload = async () => {
+            // Dibujar la imagen en el canvas
+            const context = canvas.getContext('2d');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            context.drawImage(img, 0, 0, img.width, img.height);
+
+            // Detectar rostros en la imagen
+            const detections = await faceapi.detectAllFaces(
+                canvas,
+                new faceapi.TinyFaceDetectorOptions()
+            );
+
+            if (detections.length > 0) {
+                alert('¡Rostro detectado!');
+                statusText.textContent = '¡Rostro detectado!';
+            } else {
+                alert('No se detectaron rostros.');
+                statusText.textContent = 'No se detectaron rostros.';
+            }
+        };
+    } catch (error) {
+        statusText.textContent = 'Error al procesar la imagen.';
+        console.error(error);
+    }
+}
+
+// Asociar la función al botón
+loadImageBtn.addEventListener('click', loadAndProcessImage);
