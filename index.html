@@ -1,51 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Radar con Geolocalización</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <script defer src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <!-- Face-api.js -->
-<script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
-
-  <script defer src="main.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Maps - Ubicación y Radio</title>
+    <style>
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=TU_API_KEY"></script>
 </head>
 <body>
-  <div id="map-container">
+
     <div id="map"></div>
-  </div>
-  <div id="coordinates">
-    <p><strong>Tu ubicación actual:</strong></p>
-    <p id="user-coordinates">Cargando ubicación...</p>
-  </div>
-  <div class="form-container">
-    <h2>Formulario de Captura de Entrada</h2>
-    <form id="captureForm">
-        <div class="form-group">
-            <label for="dateTime">Fecha y Hora de Entrada</label>
-            <input type="text" id="dateTime" disabled>
-        </div>
 
-        <div class="form-group">
-            <button type="button" id="captureButton">Capturar Entrada y Foto</button>
-        </div>
+    <script>
+        function initMap() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
 
-        <div id="countdown"></div>
+                    const map = new google.maps.Map(document.getElementById("map"), {
+                        center: { lat, lng },
+                        zoom: 14
+                    });
 
-        <div class="form-group">
-            <video id="video" autoplay></video> <!-- Cámara visible solo cuando sea necesario -->
-        </div>
+                    new google.maps.Marker({
+                        position: { lat, lng },
+                        map
+                    });
 
-        <div class="form-group">
-            <img id="preview" alt="Foto capturada">
-        </div>
+                    new google.maps.Circle({
+                        center: { lat, lng },
+                        radius: 500, // Radio en metros
+                        map,
+                        fillColor: "#FF0000",
+                        fillOpacity: 0.3,
+                        strokeWeight: 1
+                    });
 
-        <div class="form-group">
-            <button type="button" id="resetButton">Eliminar Foto y Capturar Otra</button>
-        </div>
-    </form>
-</div>
+                }, () => {
+                    alert("No se pudo obtener la ubicación");
+                });
+            } else {
+                alert("Tu navegador no soporta geolocalización");
+            }
+        }
+
+        window.onload = initMap;
+    </script>
+
 </body>
 </html>

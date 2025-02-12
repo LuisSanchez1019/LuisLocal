@@ -34,8 +34,9 @@ function addRadarCircle(map, latitude, longitude) {
     const currentLocation = [latitude, longitude];
     // Añadir un círculo (radar) de 2 km de radio desde la ubicación actual
     L.circle(currentLocation, {
-        radius: 2000, // Radio de 2 km
-        color: 'blue',
+        radius: 500
+        , // Radio de 2 km
+        color: 'red',
         fillColor: '#007BFF',
         fillOpacity: 0.4
     }).addTo(map);
